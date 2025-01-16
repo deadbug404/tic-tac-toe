@@ -1,37 +1,33 @@
 let gameboard = [["","",""],
                  ["","",""],
                  ["","",""]];
-let winCombinations = [];
 
-function Player(name,piece){
-    let score = 0;
-    let roundStatus = "none";
-    
-    let getRoundStatus = () => roundStatus;
+function Player(){
+    let name = "";
+    let piece = "";
+
+    let setName = (selectedName) => name = selectedName;
+    let setPiece = (selectedPiece) => piece = selectedPiece;
+    let getPiece = () => piece;
+    let getName = () => name;
 
     return{
-        getRoundStatus
+        setName,
+        getName,
+        setPiece,
+        getPiece
     }
-
 }
 
-let game = (function (){
-
-    let isPlacementValid = function(row,column){
+let currentTurn = (function (){
+    function isPlacementValid(row,column){
         if(gameboard[row][column] == ""){
             return true
         }
         return false
     }
 
-    let placePiece = function(row,column,piece){
-        if(isPlacementValid(row,column)){
-            gameboard[row].splice(column,1,piece);
-        }
-    }
-
     function checkCombinations(piece, ...arr){
-
         let winningCombination = false; 
 
         arr.forEach(element => {
@@ -42,6 +38,15 @@ let game = (function (){
     
         if(winningCombination){
             return true;
+        }
+    }
+
+    let placePiece = function(row,column,piece){
+        if(isPlacementValid(row,column)){
+            gameboard[row].splice(column,1,piece);
+            return true
+        }else{
+            return false
         }
     }
 
@@ -82,3 +87,46 @@ let game = (function (){
         isWinner
     }
 })()
+
+let game = (function(){
+
+    let player1 = Player();
+    let player2 = Player();
+    let turnOf = "";
+    let piece = "";
+
+    function setPlayerData(){
+        player1.setName(prompt("Player 1 name: "));
+        player1.setPiece(prompt("Player 1 piece: "));
+        player2.setName(prompt("Player 2 name: "));
+        player2.setPiece(prompt("Player 2 piece: "));
+        turnOf = player1.getName();
+        piece = player1.getPiece();
+    }
+
+    let start = function(){
+        setPlayerData();
+        while(true){
+            let successfull = currentTurn.placePiece(parseInt(prompt("row: ")),parseInt(prompt("column: ")),piece);
+            if(currentTurn.isWinner(piece)){
+                break
+            }
+            if(successfull){
+                if(turnOf === player1.getName()){
+                    turnOf = player2.getName();
+                    piece = player2.getPiece()
+                }else{
+                    turnOf = player1.getName();
+                    piece = player1.getPiece()
+                }
+            }
+        }
+
+        console.log(`${turnOf} wins`);
+    }
+
+    return{
+        start
+    }
+})()
+
