@@ -8,6 +8,28 @@
     <title>Tic Tac Toe</title>
 </head>
 <body>
-    
+    <h1>Tic Tac Toe</h1>
+    <div id="container">
+        <div id="grid">
+        </div>
+        <div id="currentTurnOf"></div>
+        <div id="modal">
+            <form>
+                <label for="player1Name">Player 1 Name: </label>
+                <input type="text" name="player1Name" id="player1Name" required>
+                <label for="player1Piece">Player 1 Piece: </label>
+                <input type="text" name="player1Piece" id="player1Piece" required>
+                <label for="player2Name">Player 2 Name: </label>
+                <input type="text" name="player2Name" id="player2Name" required>
+                <label for="player2Piece">Player 2 Piece: </label>
+                <input type="text" name="player2Piece" id="player2Piece" required>
+                <button id="playButton">Play</button>
+            </form>
+        </div>
+        <div id="winResult">   
+            <h3 id="winResultName">Mark Wins</h3>
+            <button onclick="window.location.reload();">Play Again</button>
+        </div>  
+    </div>
 </body>
 </html>

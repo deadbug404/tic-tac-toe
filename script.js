@@ -1,6 +1,14 @@
 let gameboard = [["","",""],
                  ["","",""],
                  ["","",""]];
+let container = document.querySelector("#container");
+let gridBlock = document.querySelector("#grid");
+let form = document.querySelector("form");
+let modal = document.querySelector("#modal");
+let currentTurnOf = document.querySelector("#currentTurnOf");
+let winResultModal = document.querySelector("#winResult");
+let winResultModalName = document.querySelector("#winResultName");
+
 
 function Player(){
     let name = "";
@@ -44,6 +52,8 @@ let currentTurn = (function (){
     let placePiece = function(row,column,piece){
         if(isPlacementValid(row,column)){
             gameboard[row].splice(column,1,piece);
+            let selectedCell = document.querySelector(`#c-${row}${column}`);
+            selectedCell.textContent = piece;
             return true
         }else{
             return false
@@ -89,44 +99,101 @@ let currentTurn = (function (){
 })()
 
 let game = (function(){
-
     let player1 = Player();
     let player2 = Player();
     let turnOf = "";
     let piece = "";
 
-    function setPlayerData(){
-        player1.setName(prompt("Player 1 name: "));
-        player1.setPiece(prompt("Player 1 piece: "));
-        player2.setName(prompt("Player 2 name: "));
-        player2.setPiece(prompt("Player 2 piece: "));
+    let  setPlayerData = function(player1Name,player1Piece,player2Name,player2Piece){
+        player1.setName(player1Name);
+        player1.setPiece(player1Piece);
+        player2.setName(player2Name);
+        player2.setPiece(player2Piece);
         turnOf = player1.getName();
         piece = player1.getPiece();
+        currentTurnOf.textContent = `Current turn: ${turnOf} | Piece: ${piece}`;
     }
 
-    let start = function(){
-        setPlayerData();
-        while(true){
-            let successfull = currentTurn.placePiece(parseInt(prompt("row: ")),parseInt(prompt("column: ")),piece);
-            if(currentTurn.isWinner(piece)){
-                break
-            }
-            if(successfull){
+    let getCurrentTurn = () => turnOf;
+    let getCurrentPiece = () => piece;
+
+    let playTurn = function(row,column){
+        let successful = currentTurn.placePiece(row,column,piece);
+        grid.update();
+        if(currentTurn.isWinner(piece)){
+            winResultModalName.textContent = `${turnOf} Wins`;
+            winResultModal.style.display = "flex";
+            gridBlock.style.display = "none";
+            currentTurnOf.textContent = "";
+        }else{
+            if(successful){
                 if(turnOf === player1.getName()){
                     turnOf = player2.getName();
                     piece = player2.getPiece()
                 }else{
                     turnOf = player1.getName();
-                    piece = player1.getPiece()
+                    piece = player1.getPiece();
                 }
             }
+            currentTurnOf.textContent = `Current turn: ${turnOf} | Piece: ${piece}`;
         }
-
-        console.log(`${turnOf} wins`);
     }
 
     return{
-        start
+        setPlayerData,
+        getCurrentTurn,
+        getCurrentPiece,
+        playTurn
     }
 })()
 
+let grid = (function(){
+
+    function cellFunction(e){
+        let position = e.target.id;
+        let [row,column] = position.split("-")[1].split("");
+        game.playTurn(row,column);
+    }
+
+    function addCellsListener(){
+        let cells = Array.from(document.querySelectorAll(".cell"));
+        cells.forEach(cell => cell.addEventListener("click", cellFunction));
+    }
+
+    let update = () =>{
+        gridBlock.innerHTML = "";
+        for(let row = 0; row < 3;row++){
+            let rowOfCells = document.createElement("div");
+            rowOfCells.classList.add("row");
+            for(let column = 0; column<3;column++){
+                let div = document.createElement("div");
+                div.textContent = gameboard[row][column];
+                div.classList.add("cell");
+                div.setAttribute("id",`c-${row}${column}`)
+                rowOfCells.appendChild(div);
+            }
+            gridBlock.appendChild(rowOfCells);
+        }
+        addCellsListener();
+    }
+
+    return{
+        update
+    }
+})()
+
+
+form.addEventListener("submit",(e)=>{
+    e.preventDefault();
+    modal.style.display = "none";
+    let player1Name = document.querySelector("#player1Name").value;
+    let player2Name = document.querySelector("#player2Name").value;
+    let player1Piece = document.querySelector("#player1Piece").value;
+    let player2Piece = document.querySelector("#player2Piece").value;
+
+
+    game.setPlayerData(player1Name,player1Piece,player2Name,player2Piece);
+    currentTurnOf.style.display = "block";
+    gridBlock.style.display = "block";
+    grid.update();
+})
